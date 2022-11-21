@@ -1,5 +1,5 @@
-import 'package:counter_7/custom_drawer.dart';
-import 'package:counter_7/budget_item.dart';
+import 'package:counter_7/pages/custom_drawer.dart';
+import 'package:counter_7/pages/budget_item.dart';
 import 'package:flutter/material.dart';
 
 class DataPage extends StatelessWidget {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:counter_7/budget_item.dart';
+import 'package:counter_7/pages/budget_item.dart';
 
 class BudgetItemsProvider extends ChangeNotifier {
   List<BudgetItem> budgetItems;

@@ -1,7 +1,7 @@
 import 'package:counter_7/form.dart';
 import 'package:counter_7/main.dart';
-import 'package:counter_7/data.dart';
-import 'package:counter_7/budget_items_provider.dart';
+import 'package:counter_7/pages/data.dart';
+import 'package:counter_7/providers/budget_items_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
