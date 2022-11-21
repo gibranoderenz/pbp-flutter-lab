@@ -74,6 +74,7 @@ class _MyWatchListState extends State<MyWatchList> {
                                     ),
                                   ),
                                   Checkbox(
+                                    activeColor: Colors.green,
                                     value: snapshot.data![index].fields.watched,
                                     onChanged: (bool? value) {
                                       setState(() {
