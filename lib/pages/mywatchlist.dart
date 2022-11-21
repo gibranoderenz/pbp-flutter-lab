@@ -1,6 +1,3 @@
-import 'dart:convert';
-
-import 'package:http/http.dart' as http;
 import 'package:counter_7/models/watchlist_item.dart';
 import 'package:flutter/material.dart';
 import 'package:counter_7/widgets/custom_drawer.dart';
