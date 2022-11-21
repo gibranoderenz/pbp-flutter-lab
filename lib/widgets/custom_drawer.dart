@@ -1,6 +1,9 @@
-import 'package:counter_7/form.dart';
-import 'package:counter_7/main.dart';
+import 'package:counter_7/models/watchlist_item.dart';
+import 'package:counter_7/pages/form.dart';
 import 'package:counter_7/pages/data.dart';
+import 'package:counter_7/pages/home.dart';
+import 'package:counter_7/pages/mywatchlist.dart';
+import 'package:counter_7/utils/fetch_watchlist.dart';
 import 'package:counter_7/providers/budget_items_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -46,6 +49,17 @@ class CustomDrawer extends StatelessWidget {
                           budgetItems: Provider.of<BudgetItemsProvider>(context)
                               .budgetItems)),
                 );
+              },
+            ),
+            ListTile(
+              title: const Text('My Watch List'),
+              onTap: () {
+                // Route menu ke halaman Data Budget
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  Future<List<WatchListItem>> watchList = fetchWatchList();
+                  return MyWatchList(
+                      title: "My Watch List", watchList: watchList);
+                }));
               },
             ),
           ],
