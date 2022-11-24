@@ -380,249 +380,249 @@ Keterangan:
    }
    ```
 
-   2. Model _mywatchlist_<br>
-      Untuk itu, saya menyalin data JSON dari _endpoint_ JSON [berikut]("http://gibs-tugas-pbp.herokuapp.com/mywatchlist/json/") ke situs Quicktype, kemudian mengikuti langkah seperti pada Lab 8 untuk mendapatkan model yang sesuai dengan data JSON tersebut. Saya kemudian menyalin hasilnya ke `models/watchlist_item.dart`.
+2. Model _mywatchlist_<br>
+   Untuk itu, saya menyalin data JSON dari _endpoint_ JSON [berikut]("http://gibs-tugas-pbp.herokuapp.com/mywatchlist/json/") ke situs Quicktype, kemudian mengikuti langkah seperti pada Lab 8 untuk mendapatkan model yang sesuai dengan data JSON tersebut. Saya kemudian menyalin hasilnya ke `models/watchlist_item.dart`.
 
-   3. Membuat halaman _mywatchlist_<br>
-      Untuk itu, setelah menambahkan _dependency_ HTTP yang diperlukan, saya harus mengambil data JSON-nya terlebih dahulu, dengan fungsi berikut:
+3. Membuat halaman _mywatchlist_<br>
+   Untuk itu, setelah menambahkan _dependency_ HTTP yang diperlukan, saya harus mengambil data JSON-nya terlebih dahulu, dengan fungsi berikut:
 
-      ```dart
-      import 'dart:convert';
-      import 'package:http/http.dart' as http;
-      import 'package:counter_7/models/watchlist_item.dart';
+   ```dart
+   import 'dart:convert';
+   import 'package:http/http.dart' as http;
+   import 'package:counter_7/models/watchlist_item.dart';
 
-      Future<List<WatchListItem>> fetchWatchList() async {
-        var url = Uri.parse("http://gibs-tugas-pbp.herokuapp.com/mywatchlist/json/");
+   Future<List<WatchListItem>> fetchWatchList() async {
+     var url = Uri.parse("http://gibs-tugas-pbp.herokuapp.com/mywatchlist/json/");
 
-        var res = await http.get(
-        url,
-        headers: {
-          "Access-Control-Allow-Origin": "\*",
-          "Content-Type": "application/json",
-          },
-        );
+     var res = await http.get(
+     url,
+     headers: {
+       "Access-Control-Allow-Origin": "\*",
+       "Content-Type": "application/json",
+       },
+     );
 
-        var data = jsonDecode(utf8.decode(res.bodyBytes));
+     var data = jsonDecode(utf8.decode(res.bodyBytes));
 
-        List<WatchListItem> watchList = [];
-        for (var d in data) {
-          if (d != null) watchList.add(WatchListItem.fromJson(d));
-        }
+     List<WatchListItem> watchList = [];
+     for (var d in data) {
+       if (d != null) watchList.add(WatchListItem.fromJson(d));
+     }
 
-        return watchList;
-      }
+     return watchList;
+   }
 
-      ```
+   ```
 
-      Kemudian ketika user mengakses halaman _mywatchlist_, fungsi tersebut akan dipanggil dan dijadikan argumen _page_.
+   Kemudian ketika user mengakses halaman _mywatchlist_, fungsi tersebut akan dipanggil dan dijadikan argumen _page_.
 
-      ```dart
-       ListTile(
-              title: const Text('My Watch List'),
-              onTap: () {
-                // Route menu ke halaman Data Budget
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  Future<List<WatchListItem>> watchList = fetchWatchList();
-                  return MyWatchList(
-                      title: "My Watch List", watchList: watchList);
-                }));
-              },
-            ),
-      ```
+   ```dart
+     ListTile(
+           title: const Text('My Watch List'),
+           onTap: () {
+             // Route menu ke halaman Data Budget
+             Navigator.push(context, MaterialPageRoute(builder: (context) {
+               Future<List<WatchListItem>> watchList = fetchWatchList();
+               return MyWatchList(
+                   title: "My Watch List", watchList: watchList);
+             }));
+           },
+         ),
+   ```
 
-      Saya kemudian mengolah data ini dengan `FutureBuilder()`:
+   Saya kemudian mengolah data ini dengan `FutureBuilder()`:
 
-      ```dart
-      ...
-      body: FutureBuilder(
-            future: widget.watchList,
-            builder: (context, AsyncSnapshot snapshot) {
-              if (snapshot.data == null) {
-                return const Center(child: CircularProgressIndicator());
-              } else {
-                if (!snapshot.hasData) {
-                  return Column(
-                    children: const [Text("Tidak ada watchlist yang ada.")],
-                  );
-                } else {
-                  return ListView.builder(
-                      itemCount: snapshot.data!.length,
-                      padding: const EdgeInsets.all(16.0),
-                      itemBuilder: (_, index) {
-                        return GestureDetector(
-                          onTap: () {
-                            // Handler navigasi ke halaman detail film
+   ```dart
+   ...
+   body: FutureBuilder(
+         future: widget.watchList,
+         builder: (context, AsyncSnapshot snapshot) {
+           if (snapshot.data == null) {
+             return const Center(child: CircularProgressIndicator());
+           } else {
+             if (!snapshot.hasData) {
+               return Column(
+                 children: const [Text("Tidak ada watchlist yang ada.")],
+               );
+             } else {
+               return ListView.builder(
+                   itemCount: snapshot.data!.length,
+                   padding: const EdgeInsets.all(16.0),
+                   itemBuilder: (_, index) {
+                     return GestureDetector(
+                       onTap: () {
+                         // Handler navigasi ke halaman detail film
 
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => MyWatchListById(
-                                    title: 'Detail',
-                                    watchListItem: snapshot.data![index],
-                                  ),
-                                ));
-                          },
-                          // Card Film
+                         Navigator.push(
+                             context,
+                             MaterialPageRoute(
+                               builder: (context) => MyWatchListById(
+                                 title: 'Detail',
+                                 watchListItem: snapshot.data![index],
+                               ),
+                             ));
+                       },
+                       // Card Film
 
-                          child: Container(
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  border: Border.all(
-                                      width: 1.5,
-                                      color:
-                                          snapshot.data![index].fields.watched
-                                              ? Colors.green
-                                              : Colors.red)),
-                              margin: const EdgeInsets.all(8),
-                              padding: const EdgeInsets.all(16),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  // Judul Film
+                       child: Container(
+                           decoration: BoxDecoration(
+                               borderRadius: BorderRadius.circular(8.0),
+                               border: Border.all(
+                                   width: 1.5,
+                                   color:
+                                       snapshot.data![index].fields.watched
+                                           ? Colors.green
+                                           : Colors.red)),
+                           margin: const EdgeInsets.all(8),
+                           padding: const EdgeInsets.all(16),
+                           child: Row(
+                             mainAxisAlignment:
+                                 MainAxisAlignment.spaceBetween,
+                             children: [
+                               // Judul Film
 
-                                  Flexible(
-                                    child: Text(
-                                      snapshot.data![index].fields.title,
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16.0),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  Checkbox(
-                                    activeColor: Colors.green,
-                                    value: snapshot.data![index].fields.watched,
-                                    onChanged: (bool? value) {
-                                      setState(() {
-                                        snapshot.data![index].fields.watched =
-                                            !snapshot
-                                                .data![index].fields.watched;
-                                      });
-                                    },
-                                  ),
-                                ],
-                              )),
-                        );
-                      });
-                }
-              }
-            })
-      ...
-      ```
+                               Flexible(
+                                 child: Text(
+                                   snapshot.data![index].fields.title,
+                                   style: const TextStyle(
+                                       fontWeight: FontWeight.bold,
+                                       fontSize: 16.0),
+                                   overflow: TextOverflow.ellipsis,
+                                 ),
+                               ),
+                               Checkbox(
+                                 activeColor: Colors.green,
+                                 value: snapshot.data![index].fields.watched,
+                                 onChanged: (bool? value) {
+                                   setState(() {
+                                     snapshot.data![index].fields.watched =
+                                         !snapshot
+                                             .data![index].fields.watched;
+                                   });
+                                 },
+                               ),
+                             ],
+                           )),
+                     );
+                   });
+             }
+           }
+         })
+   ...
+   ```
 
-   4. Membuat halaman untuk masing-masing _watchlist item_<br>
-      Ketika user memencet _card_ judul film, maka user akan pergi ke halaman berikut:
+4. Membuat halaman untuk masing-masing _watchlist item_<br>
+   Ketika user memencet _card_ judul film, maka user akan pergi ke halaman berikut:
 
    ```dart
    ...
    Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-        ),
-        drawer: CustomDrawer(),
-        body: Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: Column(children: [
-            // Detail Film
+       appBar: AppBar(
+         title: Text(widget.title),
+       ),
+       drawer: CustomDrawer(),
+       body: Padding(
+         padding: const EdgeInsets.all(32.0),
+         child: Column(children: [
+           // Detail Film
 
-            Expanded(
-              child: Column(
-                children: [
-                  // Title
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16.0),
-                    child: Text(
-                      widget.watchListItem.fields.title,
-                      style: const TextStyle(
-                          fontSize: 24.0, fontWeight: FontWeight.bold),
-                    ),
-                  ),
+           Expanded(
+             child: Column(
+               children: [
+                 // Title
+                 Padding(
+                   padding: const EdgeInsets.only(bottom: 16.0),
+                   child: Text(
+                     widget.watchListItem.fields.title,
+                     style: const TextStyle(
+                         fontSize: 24.0, fontWeight: FontWeight.bold),
+                   ),
+                 ),
 
-                  Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Release Date
-                        Text.rich(
-                          TextSpan(
-                            // with no TextStyle it will have default text style
-                            children: <TextSpan>[
-                              // Release Date
-                              const TextSpan(
-                                  text: 'Release Date: ',
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
-                              TextSpan(
-                                  text: DateFormat.yMMMMd('en_US').format(
-                                      widget.watchListItem.fields.releaseDate)),
-                            ],
-                          ),
-                        ),
+                 Column(
+                     crossAxisAlignment: CrossAxisAlignment.start,
+                     children: [
+                       // Release Date
+                       Text.rich(
+                         TextSpan(
+                           // with no TextStyle it will have default text style
+                           children: <TextSpan>[
+                             // Release Date
+                             const TextSpan(
+                                 text: 'Release Date: ',
+                                 style:
+                                     TextStyle(fontWeight: FontWeight.bold)),
+                             TextSpan(
+                                 text: DateFormat.yMMMMd('en_US').format(
+                                     widget.watchListItem.fields.releaseDate)),
+                           ],
+                         ),
+                       ),
 
-                        // Rating
-                        Text.rich(
-                          TextSpan(
-                            // with no TextStyle it will have default text style
-                            children: <TextSpan>[
-                              // Release Date
-                              const TextSpan(
-                                  text: 'Rating: ',
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
-                              TextSpan(
-                                  text:
-                                      '${widget.watchListItem.fields.rating.toDouble()}/5'),
-                            ],
-                          ),
-                        ),
+                       // Rating
+                       Text.rich(
+                         TextSpan(
+                           // with no TextStyle it will have default text style
+                           children: <TextSpan>[
+                             // Release Date
+                             const TextSpan(
+                                 text: 'Rating: ',
+                                 style:
+                                     TextStyle(fontWeight: FontWeight.bold)),
+                             TextSpan(
+                                 text:
+                                     '${widget.watchListItem.fields.rating.toDouble()}/5'),
+                           ],
+                         ),
+                       ),
 
-                        // Status
-                        Text.rich(
-                          TextSpan(
-                            // with no TextStyle it will have default text style
-                            children: <TextSpan>[
-                              // Release Date
-                              const TextSpan(
-                                  text: 'Status: ',
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
-                              TextSpan(
-                                  text: widget.watchListItem.fields.watched
-                                      ? 'watched'
-                                      : 'not watched'),
-                            ],
-                          ),
-                        ),
+                       // Status
+                       Text.rich(
+                         TextSpan(
+                           // with no TextStyle it will have default text style
+                           children: <TextSpan>[
+                             // Release Date
+                             const TextSpan(
+                                 text: 'Status: ',
+                                 style:
+                                     TextStyle(fontWeight: FontWeight.bold)),
+                             TextSpan(
+                                 text: widget.watchListItem.fields.watched
+                                     ? 'watched'
+                                     : 'not watched'),
+                           ],
+                         ),
+                       ),
 
-                        // Status
-                        const Text('Review:',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text(widget.watchListItem.fields.review),
-                      ]),
-                ],
-              ),
-            ),
+                       // Status
+                       const Text('Review:',
+                           style: TextStyle(fontWeight: FontWeight.bold)),
+                       Text(widget.watchListItem.fields.review),
+                     ]),
+               ],
+             ),
+           ),
 
-            // Tombol Back
+           // Tombol Back
 
-            Row(
-              children: [
-                Expanded(
-                  child: TextButton(
-                    child: Text("Back", style: TextStyle(color: Colors.white)),
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(Colors.blue),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ]),
-        ));
-    ...
+           Row(
+             children: [
+               Expanded(
+                 child: TextButton(
+                   child: Text("Back", style: TextStyle(color: Colors.white)),
+                   style: ButtonStyle(
+                     backgroundColor: MaterialStateProperty.all(Colors.blue),
+                   ),
+                   onPressed: () {
+                     Navigator.pop(context);
+                   },
+                 ),
+               ),
+             ],
+           ),
+         ]),
+       ));
+   ...
    ```
 
    Pada halaman tersebut, terdapat detail setiap film dan tombol untuk kembali ke halaman berikutnya.
