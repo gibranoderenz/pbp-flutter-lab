@@ -348,7 +348,7 @@ Keterangan:
 
 ### Implementasi _Checklist_
 
-1. Tombol Navigasi ke `mywatchlist.dart`
+1. Tombol Navigasi ke `mywatchlist.dart`<br>
    Untuk itu, saya menambahkan _route_ menuju halaman ini pada `CustomDrawer()` yang telah saya buat di tugas sebelumnya. Saya membuat _halaman_ `mywatchlist.dart` terlebih dahulu, kemudian mengatur _route_-nya sebagai berikut:
 
    ```dart
@@ -380,10 +380,10 @@ Keterangan:
    }
    ```
 
-   2. Model _mywatchlist_
+   2. Model _mywatchlist_<br>
       Untuk itu, saya menyalin data JSON dari _endpoint_ JSON [berikut]("http://gibs-tugas-pbp.herokuapp.com/mywatchlist/json/") ke situs Quicktype, kemudian mengikuti langkah seperti pada Lab 8 untuk mendapatkan model yang sesuai dengan data JSON tersebut. Saya kemudian menyalin hasilnya ke `models/watchlist_item.dart`.
 
-   3. Membuat halaman _mywatchlist_
+   3. Membuat halaman _mywatchlist_<br>
       Untuk itu, setelah menambahkan _dependency_ HTTP yang diperlukan, saya harus mengambil data JSON-nya terlebih dahulu, dengan fungsi berikut:
 
       ```dart
@@ -511,7 +511,7 @@ Keterangan:
       ...
       ```
 
-   4. Membuat halaman untuk masing-masing _watchlist item_
+   4. Membuat halaman untuk masing-masing _watchlist item_<br>
       Ketika user memencet _card_ judul film, maka user akan pergi ke halaman berikut:
 
    ```dart
