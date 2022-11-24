@@ -246,3 +246,383 @@ _Referensi: https://api.flutter.dev/flutter/widgets/Navigator-class.html_
         },
       ),
   ```
+
+# Tugas 9
+
+### Mekanisme Pengambilan JSON dengan Model vs Tanpa Model
+
+Bagian ini mengambil referensi dari [link berikut](https://docs.flutter.dev/development/data-and-backend/json).
+
+Pada dasarnya, kita bisa mengambil data JSON tanpa membuat model terlebih dahulu, seperti yang disampaikan. Tetapi, hal ini dinilai kurang _sustainable_ karena kita tidak dapat mengetahui tipe data dari masing-masing _field_ data JSON tersebut, sehingga _intellisense_ IDE juga tidak dapat dimanfaatkan. Intinya adalah kemungkinan kode kita mengalami _error_ lebih besar.
+
+### Widget yang Digunakan pada Tugas 9
+
+- `CustomDrawer()`
+  Widget ini digunakan untuk membawa elemen navigasi pada `mywatchlist.dart` dan `mywatchlist_by_id.dart`.
+
+- `FutureBuilder()`
+  Widget ini berfungsi untuk menampilkan widget berdasarkan suatu _snapshot_ data tertentu.
+
+- `ListView.builder()`
+  Widget ini berfungsi untuk menampilkan seluruh _watchlist_ dengan format _scrollable_ secara vertikal.
+
+- `GestureDetector()`
+  Widget ini membuat widget `Container()` yang akan menampung _card_ _watchlist item_ menjadi _pressable_ dan dapat men-_trigger_ suatu fungsi `onTap`.
+
+- `Container()`
+  Widget ini berguna untuk menampung _card_ _watchlist item_.
+
+- `BoxDecoration()`
+  Widget ini berguna untuk menghias widget `Container()`.
+
+- `Row()`
+  Widget ini berfungsi untuk menata elemen di dalam _card_ secara horizontal.
+
+- `Flexible()`
+  Widget ini berguna untuk mengatasi kasus di mana judul filmnya terlalu panjang, sehingga nanti di akhir _string_ judul akan diberikan "...".
+
+- `Checkbox()`
+  Widget ini berfungsi untuk menandakan sudah atau belumnya suatu film ditonton, dan bisa juga mengubah _status_ tersebut.
+
+- `Text()`
+  Widget ini digunakan untuk menampilkan teks di layar.
+
+- `Column()`
+  Widget ini berfungsi untuk menyajikan elemen secara vertikal. Widget ini digunakan pada `mywatchlist_by_id.dart`.
+
+- `Padding()`
+  Widget ini berfungsi untuk menyediakan _padding_ bagi _child widget_-nya.
+
+- `Text.rich()`
+  Widget ini berfungsi untuk menampilkan teks dengan format yang berbeda untuk setiap bagian teksnya.
+
+  ```
+  Misalkan,
+
+  Release Date: Oct. 20, 2022
+
+  "Release Date: " bisa di-bold, sementara tanggalnya tidak.
+  ```
+
+- `Expanded()`
+  Widget ini berfungsi agar _child widget_-nya dapat mengambil seluruh _space_ yang tersedia.
+
+### Mekanisme Pengambilan Data JSON
+
+```dart
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:counter_7/models/watchlist_item.dart';
+
+Future<List<WatchListItem>> fetchWatchList() async {
+  var url = Uri.parse("http://gibs-tugas-pbp.herokuapp.com/mywatchlist/json/");
+
+  var res = await http.get(
+    url,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Content-Type": "application/json",
+    },
+  );
+
+  var data = jsonDecode(utf8.decode(res.bodyBytes));
+
+  List<WatchListItem> watchList = [];
+  for (var d in data) {
+    if (d != null) watchList.add(WatchListItem.fromJson(d));
+  }
+
+  return watchList;
+}
+```
+
+Keterangan:
+
+1. Mengakses _endpoint_ [berikut](http://gibs-tugas-pbp.herokuapp.com/mywatchlist/json/) dengan _request_ GET.
+
+2. Menunggu _response_ dari server.
+
+3. Mem-_parse_ data dari server menggunakan fungsi yang ada pada `models/watchlist_item.dart`.
+
+4. Menyajikan data di aplikasi.
+
+### Implementasi _Checklist_
+
+1. Tombol Navigasi ke `mywatchlist.dart`
+   Untuk itu, saya menambahkan _route_ menuju halaman ini pada `CustomDrawer()` yang telah saya buat di tugas sebelumnya. Saya membuat _halaman_ `mywatchlist.dart` terlebih dahulu, kemudian mengatur _route_-nya sebagai berikut:
+
+   ```dart
+   class CustomDrawer extends StatelessWidget {
+   @override
+   Widget build(BuildContext context) {
+    return SafeArea(
+      child: Drawer(
+        child: Column(
+          children: [
+            ...
+            // Route ke halaman mywatchlist.dart
+            ListTile(
+              title: const Text('My Watch List'),
+              onTap: () {
+                // Route menu ke halaman Data Budget
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  Future<List<WatchListItem>> watchList = fetchWatchList();
+                  return MyWatchList(
+                      title: "My Watch List", watchList: watchList);
+                }));
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+   }
+   }
+   ```
+
+   2. Model _mywatchlist_
+      Untuk itu, saya menyalin data JSON dari _endpoint_ JSON [berikut]("http://gibs-tugas-pbp.herokuapp.com/mywatchlist/json/") ke situs Quicktype, kemudian mengikuti langkah seperti pada Lab 8 untuk mendapatkan model yang sesuai dengan data JSON tersebut. Saya kemudian menyalin hasilnya ke `models/watchlist_item.dart`.
+
+   3. Membuat halaman _mywatchlist_
+      Untuk itu, setelah menambahkan _dependency_ HTTP yang diperlukan, saya harus mengambil data JSON-nya terlebih dahulu, dengan fungsi berikut:
+
+      ```dart
+      import 'dart:convert';
+      import 'package:http/http.dart' as http;
+      import 'package:counter_7/models/watchlist_item.dart';
+
+      Future<List<WatchListItem>> fetchWatchList() async {
+        var url = Uri.parse("http://gibs-tugas-pbp.herokuapp.com/mywatchlist/json/");
+
+        var res = await http.get(
+        url,
+        headers: {
+          "Access-Control-Allow-Origin": "\*",
+          "Content-Type": "application/json",
+          },
+        );
+
+        var data = jsonDecode(utf8.decode(res.bodyBytes));
+
+        List<WatchListItem> watchList = [];
+        for (var d in data) {
+          if (d != null) watchList.add(WatchListItem.fromJson(d));
+        }
+
+        return watchList;
+      }
+
+      ```
+
+      Kemudian ketika user mengakses halaman _mywatchlist_, fungsi tersebut akan dipanggil dan dijadikan argumen _page_.
+
+      ```dart
+       ListTile(
+              title: const Text('My Watch List'),
+              onTap: () {
+                // Route menu ke halaman Data Budget
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  Future<List<WatchListItem>> watchList = fetchWatchList();
+                  return MyWatchList(
+                      title: "My Watch List", watchList: watchList);
+                }));
+              },
+            ),
+      ```
+
+      Saya kemudian mengolah data ini dengan `FutureBuilder()`:
+
+      ```dart
+      ...
+      body: FutureBuilder(
+            future: widget.watchList,
+            builder: (context, AsyncSnapshot snapshot) {
+              if (snapshot.data == null) {
+                return const Center(child: CircularProgressIndicator());
+              } else {
+                if (!snapshot.hasData) {
+                  return Column(
+                    children: const [Text("Tidak ada watchlist yang ada.")],
+                  );
+                } else {
+                  return ListView.builder(
+                      itemCount: snapshot.data!.length,
+                      padding: const EdgeInsets.all(16.0),
+                      itemBuilder: (_, index) {
+                        return GestureDetector(
+                          onTap: () {
+                            // Handler navigasi ke halaman detail film
+
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => MyWatchListById(
+                                    title: 'Detail',
+                                    watchListItem: snapshot.data![index],
+                                  ),
+                                ));
+                          },
+                          // Card Film
+
+                          child: Container(
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  border: Border.all(
+                                      width: 1.5,
+                                      color:
+                                          snapshot.data![index].fields.watched
+                                              ? Colors.green
+                                              : Colors.red)),
+                              margin: const EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(16),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  // Judul Film
+
+                                  Flexible(
+                                    child: Text(
+                                      snapshot.data![index].fields.title,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16.0),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  Checkbox(
+                                    activeColor: Colors.green,
+                                    value: snapshot.data![index].fields.watched,
+                                    onChanged: (bool? value) {
+                                      setState(() {
+                                        snapshot.data![index].fields.watched =
+                                            !snapshot
+                                                .data![index].fields.watched;
+                                      });
+                                    },
+                                  ),
+                                ],
+                              )),
+                        );
+                      });
+                }
+              }
+            })
+      ...
+      ```
+
+   4. Membuat halaman untuk masing-masing _watchlist item_
+      Ketika user memencet _card_ judul film, maka user akan pergi ke halaman berikut:
+
+   ```dart
+   ...
+   Scaffold(
+        appBar: AppBar(
+          title: Text(widget.title),
+        ),
+        drawer: CustomDrawer(),
+        body: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(children: [
+            // Detail Film
+
+            Expanded(
+              child: Column(
+                children: [
+                  // Title
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16.0),
+                    child: Text(
+                      widget.watchListItem.fields.title,
+                      style: const TextStyle(
+                          fontSize: 24.0, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+
+                  Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Release Date
+                        Text.rich(
+                          TextSpan(
+                            // with no TextStyle it will have default text style
+                            children: <TextSpan>[
+                              // Release Date
+                              const TextSpan(
+                                  text: 'Release Date: ',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              TextSpan(
+                                  text: DateFormat.yMMMMd('en_US').format(
+                                      widget.watchListItem.fields.releaseDate)),
+                            ],
+                          ),
+                        ),
+
+                        // Rating
+                        Text.rich(
+                          TextSpan(
+                            // with no TextStyle it will have default text style
+                            children: <TextSpan>[
+                              // Release Date
+                              const TextSpan(
+                                  text: 'Rating: ',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              TextSpan(
+                                  text:
+                                      '${widget.watchListItem.fields.rating.toDouble()}/5'),
+                            ],
+                          ),
+                        ),
+
+                        // Status
+                        Text.rich(
+                          TextSpan(
+                            // with no TextStyle it will have default text style
+                            children: <TextSpan>[
+                              // Release Date
+                              const TextSpan(
+                                  text: 'Status: ',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              TextSpan(
+                                  text: widget.watchListItem.fields.watched
+                                      ? 'watched'
+                                      : 'not watched'),
+                            ],
+                          ),
+                        ),
+
+                        // Status
+                        const Text('Review:',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text(widget.watchListItem.fields.review),
+                      ]),
+                ],
+              ),
+            ),
+
+            // Tombol Back
+
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    child: Text("Back", style: TextStyle(color: Colors.white)),
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Colors.blue),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ]),
+        ));
+    ...
+   ```
+
+   Pada halaman tersebut, terdapat detail setiap film dan tombol untuk kembali ke halaman berikutnya.
